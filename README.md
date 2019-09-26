@@ -7,7 +7,7 @@ This pipeline is derived from [zudi-lin/pytorch_connectomics](https://github.com
 - get_seg.py: Use CC and watershed to get mitochondria segmentation map from a distance transform map, and calculate the precision and recall for the segmentation. derived from [aarushgupta/NeuroG/post_process.py](https://github.com/aarushgupta/NeuroG)
 - get_vast_deploy_HUMAN.py: Large scale version of get_seg.py. After getting the heatmap results(20 slices each), merge them to 200 slices each and do post-processing.
 - trace.py: After using get_vast_deploy_HUMAN.py to get the segmentation. The labels will not be consistent through the 1200 slices. This script help to trace the mitochondria and relabel them.
-- Upsample.py: Upsample the large volume for better visualization in neuroglancer. For neuroglancer visualization, please refer to [aarushgupta/NeuroG/post_process.py](https://github.com/aarushgupta/NeuroG)
+- Upsample.py: Upsample the large volume for better visualization in neuroglancer. For neuroglancer visualization, please refer to [aarushgupta/NeuroG/neuroG.py](https://github.com/aarushgupta/NeuroG)
 - T_util.py: Some useful functions
 - torch_connectomics/run/genertae_slurm.py: Automatically generate slurm scripts for running inference on RC cluster 
 - torch_connectomics/run/deploy.py: Use trained model on large scale dataset to get heatmaps.
