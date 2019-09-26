@@ -1,6 +1,52 @@
 # EM Mitochondria Pipeline
-This pipeline is derived from [zudi-lin/pytorch_connectomics](https://github.com/zudi-lin/pytorch_connectomics), I did the following modification and new implementation:
 
+This pipeline is derived from [zudi-lin/pytorch_connectomics](https://github.com/zudi-lin/pytorch_connectomics), I did some modification and new implementation:
+
+### Pre-process and Post-process
+- get_dataset.py: Get .h5 volume dataset from .png proofreading files and EM images.
+- get_seg.py: Use CC and watershed to get mitochondria segmentation map from a distance transform map, and calculate the precision and recall for the segmentation. derived from [aarushgupta/NeuroG/post_process.py](https://github.com/aarushgupta/NeuroG)
+- get_vast_deploy_HUMAN.py: Large scale version of get_seg.py. After getting the heatmap results(20 slices each), merge them to 200 slices each and do post-processing.
+- trace.py: After using get_vast_deploy_HUMAN.py to get the segmentation. The labels will not be consistent through the 1200 slices. This script help to trace the mitochondria and relabel them.
+- Upsample.py: Upsample the large volume for better visualization in neuroglancer. For neuroglancer visualization, please refer to [aarushgupta/NeuroG/post_process.py](https://github.com/aarushgupta/NeuroG)
+- T_util.py: Some useful functions
+- torch_connectomics/run/genertae_slurm.py: Automatically generate slurm scripts for running inference on RC cluster 
+- torch_connectomics/run/deploy.py: Use trained model on large scale dataset to get heatmaps.
+
+### Online Hard Negative Mining:
+- scripts/train.py: Training script for OHEM, please set args.aux and criterion for OHEM.
+- torch_connectomics/run/train.py: Train function for OHEM
+- torch_connectomics/model/model_zoo/unetv3.py: new unetv3 version, with auxiliary outputs
+- torch_connectomics/model/loss/loss.py: implementation of different OHEM loss
+- torch_connectomics/utils/vis/visualize.py: also visualize the auxiliary outputs and gts 
+
+### Nearest Neighbor Classification
+- scripts/train_NN.py: Training script for NNC
+- torch_connectomics/run/train_NN.py:Train function for NNC
+- torch_connectomics/run/test_NN.py:Test function for NNC
+- torch_connectomics/model/model_zoo/unetv3_ebd2.py:Model for 3D UNet+NNC, get embedding from the last but one layer
+
+### Discriminative Loss 
+- scripts/train_dsc.py:Training script for Discriminative Loss
+- torch_connectomics/run/train_dsc.py:Train function for Discriminative Loss
+- torch_connectomics/run/test_dsc.py:Test function for Discriminative Loss
+- torch_connectomics/model/loss/loss.py: implementation of Discriminative Loss
+
+### Embedding
+Implentation for 
+- scripts/train_2D.py:Training script for 2D UNet+Embedding
+- torch_connectomics/run/train_2d.py:Train function for 2D UNet+Embedding
+- torch_connectomics/model/model_zoo/unet2d_ebd.py: Model for 2D UNet+Embedding
+- torch_connectomics/model/model_zoo/unetv3_ebd.py: Model for 3D UNet+Embedding
+
+### Training & Testing in one file
+The past code requires using scripts/test.py to evaluate the trained model, but here I implement automatically evaluate the model after every 1000 iterations
+- scripts/train_val.py: Scripts for training & testing
+- torch_connectomics/run/train_val.py: Function for training & testing
+- torch_connectomics/utils/net/arguments_val.py: Arguments for training & testing
+- torch_connectomics/utils/net/dataloader_val.py: Dataloader for training & testing
+
+                                            Please install the package as follows:
+-------------------------------------------------------------------------------------------------------------------------
 # PyTorch Connectomics
 
 ## Introduction
