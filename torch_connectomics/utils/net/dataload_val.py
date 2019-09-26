@@ -21,15 +21,19 @@ TASK_MAP = {0: 'neuron segmentation',
 
 def get_input_data(args, pad_size, mode):
     dir_name = args.train.split('@')
-    img_name = args.img_name.split('@')
-    img_name = [dir_name[0] + x for x in img_name]
+
     if mode=='train':
+        img_name = args.img_name.split('@')
+        img_name = [dir_name[0] + x for x in img_name]
         seg_name = args.seg_name.split('@')
         seg_name = [dir_name[0] + x for x in seg_name]
         if args.valid_mask is not None:
             mask_names = args.valid_mask.split('@')
             mask_locations = [dir_name[0] + x for x in mask_names]
-
+    if mode =='test':
+        img_name = args.test_name.split('@')
+        img_name = [dir_name[0] + x for x in img_name]
+        
     model_input = [None]*len(img_name)
     if mode=='train':
         assert len(img_name)==len(seg_name)
@@ -68,14 +72,13 @@ def get_input_data(args, pad_size, mode):
                 
                 print(f"mask shape: {model_mask[i].shape}")
                 assert model_input[i].shape == model_mask[i].shape
-    if hasattr(args, 'valid_mask'):
+    if mode == 'train':
         if args.valid_mask is not None:
             return model_input, model_mask, model_label
         else:
             return model_input, None, model_label
     else:
-        if mode == 'test':
-            return model_input, None, None
+        return model_input, None, None
 
 
 def get_input(args, model_io_size, mode='train', preload_data=[None,None,None]):
@@ -185,4 +188,3 @@ def get_input(args, model_io_size, mode='train', preload_data=[None,None,None]):
                 dataset, batch_size=args.batch_size, shuffle=SHUFFLE, collate_fn = collate_fn_test,
                 num_workers=args.num_cpu, pin_memory=True)                  
         return img_loader
-

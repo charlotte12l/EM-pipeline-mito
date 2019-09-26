@@ -20,8 +20,10 @@ def conv2d_bn_non(in_planes, out_planes, kernel_size=(3, 3), stride=1,
                   dilation=(1, 1), padding=(1, 1), bias=False):
     return nn.Sequential(
         conv2d_pad(in_planes, out_planes, kernel_size, stride,
+                   # dilation, padding, bias)
                    dilation, padding, bias),
-        SynchronizedBatchNorm2d(out_planes))
+        SynchronizedBatchNorm2d(out_planes)
+        )
 
 def conv2d_bn_elu(in_planes, out_planes, kernel_size=(3, 3), stride=1,
                   dilation=(1, 1), padding=(1, 1), bias=False):
@@ -45,8 +47,10 @@ def conv3d_bn_non(in_planes, out_planes, kernel_size=(3,3,3), stride=1,
                   dilation=(1,1,1), padding=(1,1,1), bias=False):
     return nn.Sequential(
             conv3d_pad(in_planes, out_planes, kernel_size, stride, 
+                       # dilation, padding, bias)
                        dilation, padding, bias),
-            SynchronizedBatchNorm3d(out_planes))              
+            SynchronizedBatchNorm3d(out_planes)
+            )              
 
 def conv3d_bn_elu(in_planes, out_planes, kernel_size=(3,3,3), stride=1, 
                   dilation=(1,1,1), padding=(1,1,1), bias=False):

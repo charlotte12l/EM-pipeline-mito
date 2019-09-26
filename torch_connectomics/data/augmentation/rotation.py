@@ -35,18 +35,20 @@ class Rotate(DataAugment):
     def __call__(self, data, random_state=None):
         if random_state is None:
             random_state = np.random.RandomState(1234)
-
-        if 'label' in data and data['label'] is not None:
-            image, label = data['image'], data['label']
-        else:
-            image, label = data['image'], None
+        # import pdb; pdb.set_trace()
+        # print(data.keys())
+        image = data['image']
 
         height, width = image.shape[-2:]
         M = cv2.getRotationMatrix2D((height/2, width/2), random_state.rand()*360.0, 1)
 
         output = {}
         output['image'] = self.rotate(image, M, self.image_interpolation)
-        if label is not None:
-            output['label'] = self.rotate(label, M, self.label_interpolation)
 
+        if 'label' in data and data['label'] is not None:
+            output['label'] = self.rotate(data['label'], M, self.label_interpolation)
+
+        if 'mask' in data and data['mask'] is not None:
+            output['mask'] = self.rotate(data['mask'], M, self.label_interpolation)
+        # print(f'Rotate Keys: {output.keys()}')
         return output

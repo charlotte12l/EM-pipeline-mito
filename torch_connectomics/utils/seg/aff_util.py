@@ -1,5 +1,5 @@
 import numpy as np
-from scipy.misc import comb
+from scipy.special import comb
 import scipy.sparse
 
 def affinitize(img, dst=(1,1,1), dtype=np.float32):

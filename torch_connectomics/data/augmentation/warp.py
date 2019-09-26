@@ -36,10 +36,19 @@ class Elastic(DataAugment):
         self.sample_params['add'] = [0, max_margin, max_margin]
 
     def __call__(self, data, random_state=None):
+
+        image = data['image']
+
         if 'label' in data and data['label'] is not None:
-            image, label = data['image'], data['label']
+            label = data['label']
         else:
-            image = data['image']  
+            label = None
+
+        if 'mask' in data and data['mask'] is not None:
+            mask = data['mask']
+        else:
+            mask = None
+
 
         height, width = image.shape[-2:] # (c, z, y, x)
         if random_state is None:
@@ -54,6 +63,7 @@ class Elastic(DataAugment):
         output = {}
         transformed_image = []
         transformed_label = []
+        transformed_mask = []
 
         for i in range(image.shape[-3]):
             if image.ndim == 3:
@@ -63,8 +73,13 @@ class Elastic(DataAugment):
                 temp = [cv2.remap(image[channel, i], mapx, mapy, self.image_interpolation, 
                         borderMode=self.border_mode) for channel in range(image.shape[0])]     
                 transformed_image.append(np.stack(temp, 0))          
-            if 'label' in data and data['label'] is not None:
+            
+            if label is not None:
                 transformed_label.append(cv2.remap(label[i], mapx, mapy, 
+                                    self.label_interpolation, borderMode=self.border_mode))
+            
+            if mask is not None:
+                transformed_mask.append(cv2.remap(mask[i], mapx, mapy,
                                     self.label_interpolation, borderMode=self.border_mode))
 
         if image.ndim == 3: # (z,y,x)
@@ -73,7 +88,11 @@ class Elastic(DataAugment):
             transformed_image = np.stack(transformed_image, 1)
 
         transformed_label = np.stack(transformed_label, 0)
+        
+        if mask is not None:
+            transformed_mask = np.stack(transformed_mask, 0)
+            output['mask'] = transformed_mask
         output['image'] = transformed_image
         output['label'] = transformed_label
-
+        # print(f'Elastic Keys: {output.keys()}')
         return output

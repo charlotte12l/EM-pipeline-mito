@@ -24,6 +24,9 @@ def get_args(mode='train'):
                         help='Input folder (train)')
     parser.add_argument('-dn','--img-name',  default='im_uint8.h5',
                         help='Image data path')
+    parser.add_argument('-tn','--test-name',  default='im_uint8.h5',
+                        help='test data path')
+    
     parser.add_argument('-o','--output', default='result/train/',
                         help='Output path')
     parser.add_argument('-mi','--model-input', type=str,  default='31,204,204',
@@ -55,30 +58,30 @@ def get_args(mode='train'):
                         help='Use Embedding')
     
 
-    if mode == 'train':
-        parser.add_argument('-ln','--seg-name',  default='seg-groundtruth2-malis.h5',
-                            help='Ground-truth label path')
+    parser.add_argument('-ln','--seg-name',  default='seg-groundtruth2-malis.h5',
+                        help='Ground-truth label path')
 
-        parser.add_argument('-vm','--valid-mask', default=None,
-                            help='Mask for the train images')
+    parser.add_argument('-vm','--valid-mask', default=None,
+                        help='Mask for the train images')
 
-        parser.add_argument('-ft','--finetune', type=bool, default=False,
-                            help='Fine-tune on previous model [Default: False]')
+    parser.add_argument('-ft','--finetune', type=bool, default=False,
+                        help='Fine-tune on previous model [Default: False]')
 
-        # optimization option
-        parser.add_argument('-lt', '--loss', type=int, default=1,
-                            help='Loss function')
-        parser.add_argument('-lr', type=float, default=0.0001,
-                            help='Learning rate')
-        parser.add_argument('--iteration-total', type=int, default=1000,
-                            help='Total number of iteration')
-        parser.add_argument('--iteration-save', type=int, default=100,
-                            help='Number of iteration to save')
-        parser.add_argument('--iteration-begin', type=int, default=0,
-                            help='Begin Iteration')
-    elif mode == 'test':
-        parser.add_argument('--test-stride', type=str, default='',
-                            help='stride during inference')
+    # optimization option
+    parser.add_argument('-lt', '--loss', type=int, default=1,
+                        help='Loss function')
+    parser.add_argument('-lr', type=float, default=0.0001,
+                        help='Learning rate')
+    parser.add_argument('--iteration-total', type=int, default=1000,
+                        help='Total number of iteration')
+    parser.add_argument('--iteration-save', type=int, default=100,
+                        help='Number of iteration to save')
+    parser.add_argument('--iteration-begin', type=int, default=0,
+                        help='Begin Iteration')
+
+    parser.add_argument('--test-stride', type=str, default='',
+                        help='stride during inference')
 
     args = parser.parse_args()
     return args
+

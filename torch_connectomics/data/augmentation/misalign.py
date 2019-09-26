@@ -23,11 +23,19 @@ class MisAlignment(DataAugment):
         images = data['image'].copy()
         labels = data['label'].copy()
 
+        if 'mask' in data and data['mask'] is not None:
+            mask = data['mask'].copy()
+        else:
+            mask = None
+
         out_shape = (images.shape[0], 
                      images.shape[1]-self.displacement, 
                      images.shape[2]-self.displacement)    
         new_images = np.zeros(out_shape, images.dtype)
         new_labels = np.zeros(out_shape, labels.dtype)
+
+        if mask is not None:
+            new_mask = np.zeros(out_shape, mask.dtype)
 
         x0 = random_state.randint(self.displacement)
         y0 = random_state.randint(self.displacement)
@@ -41,17 +49,38 @@ class MisAlignment(DataAugment):
             new_labels = labels[:, y0:y0+out_shape[1], x0:x0+out_shape[2]]
             new_images[idx] = images[idx, y1:y1+out_shape[1], x1:x1+out_shape[2]]
             new_labels[idx] = labels[idx, y1:y1+out_shape[1], x1:x1+out_shape[2]]
+
+            if mask is not None:
+                new_mask = mask[:, y0:y0+out_shape[1], x0:x0+out_shape[2]]
+                new_mask[idx] = mask[idx, y1:y1+out_shape[1], x1:x1+out_shape[2]]
         else:
             # translation misalignment
             new_images[:idx] = images[:idx, y0:y0+out_shape[1], x0:x0+out_shape[2]]
             new_labels[:idx] = labels[:idx, y0:y0+out_shape[1], x0:x0+out_shape[2]]
             new_images[idx:] = images[idx:, y1:y1+out_shape[1], x1:x1+out_shape[2]]
             new_labels[idx:] = labels[idx:, y1:y1+out_shape[1], x1:x1+out_shape[2]]
-        
-        return new_images, new_labels
+
+            if mask is not None:
+                new_mask[:idx] = mask[:idx, y0:y0+out_shape[1], x0:x0+out_shape[2]]
+                new_mask[idx:] = mask[idx:, y1:y1+out_shape[1], x1:x1+out_shape[2]]
+
+        data = {}
+        data['image'] = new_images
+        data['label'] = new_labels
+
+        if mask is not None:
+            data['mask'] = new_mask
+
+        return data
 
     def __call__(self, data, random_state=None):
         if random_state is None:
             random_state = np.random.RandomState(1234)
-        new_images, new_labels = self.misalignment(data, random_state)
-        return {'image': new_images, 'label': new_labels}
+
+        output = self.misalignment(data, random_state)
+
+        # print(f'MissingSection Keys: {output.keys()}')
+
+        return output
+        # new_images, new_labels = self.misalignment(data, random_state)
+        # return {'image': new_images, 'label': new_labels}

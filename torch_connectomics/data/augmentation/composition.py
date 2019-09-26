@@ -58,6 +58,11 @@ class Compose(object):
     def crop(self, data):
         image, label = data['image'], data['label']
 
+        if 'mask' in data and data['mask'] is not None:
+            mask = data['mask']
+        else:
+            mask = None
+
         assert image.shape[-3:] == label.shape
         assert image.ndim == 3 or image.ndim == 4
         margin = (label.shape[1] - self.input_size[1]) // 2
@@ -72,28 +77,59 @@ class Compose(object):
         z_low, z_high = int(z_low), int(z_high)
 
         if margin==0:
-            return {'image': image, 'label': label}
+            if mask is None:
+                return {'image': image, 'label': label}
+            else:
+                return {'image': image, 'label': label, 'mask': mask}
         else:    
             low = margin
             high = margin + self.input_size[1]
             if image.ndim == 3:
                 if self.keep_uncropped == True:
-                    return {'image': image[z_low:z_high, low:high, low:high],
+                    if mask is None:
+                        return {'image': image[z_low:z_high, low:high, low:high],
+                                'label': label[z_low:z_high, low:high, low:high],
+                                'image_uncropped': image,
+                                'label_uncropped': label}
+                    else:
+                        return {'image': image[z_low:z_high, low:high, low:high],
                             'label': label[z_low:z_high, low:high, low:high],
+                            'mask': mask[z_low:z_high, low:high, low:high],
                             'image_uncropped': image,
-                            'label_uncropped': label}               
+                            'label_uncropped': label,
+                            'mask_uncropped': mask}
+
                 else:
-                    return {'image': image[z_low:z_high, low:high, low:high],
-                            'label': label[z_low:z_high, low:high, low:high]}
+                    if mask is None:
+                        return {'image': image[z_low:z_high, low:high, low:high],
+                                'label': label[z_low:z_high, low:high, low:high]}
+                    else:
+                        return {'image': image[z_low:z_high, low:high, low:high],
+                                'label': label[z_low:z_high, low:high, low:high],
+                                'mask': mask[z_low:z_high, low:high, low:high]}
+
             else:
                 if self.keep_uncropped == True:
-                    return {'image': image[:, z_low:z_high, low:high, low:high],
-                            'label': label[z_low:z_high, low:high, low:high],
-                            'image_uncropped': image,
-                            'label_uncropped': label}
+                    if mask is not None:
+                        return {'image': image[:, z_low:z_high, low:high, low:high],
+                                'label': label[z_low:z_high, low:high, low:high],
+                                'mask': mask[z_low:z_high, low:high, low:high],
+                                'image_uncropped': image,
+                                'label_uncropped': label,
+                                'mask_uncropped': mask}
+                    else:
+                        return {'image': image[:, z_low:z_high, low:high, low:high],
+                                'label': label[z_low:z_high, low:high, low:high],
+                                'image_uncropped': image,
+                                'label_uncropped': label}
                 else:
-                    return {'image': image[:, z_low:z_high, low:high, low:high],
-                            'label': label[z_low:z_high, low:high, low:high]}                                        
+                    if mask is not None:
+                        return {'image': image[:, z_low:z_high, low:high, low:high],
+                                'label': label[z_low:z_high, low:high, low:high],
+                                'mask': mask[z_low:z_high, low:high, low:high]}
+                    else:
+                        return {'image': image[:, z_low:z_high, low:high, low:high],
+                                'label': label[z_low:z_high, low:high, low:high]}
 
     def __call__(self, data, random_state=None):
         data['image'] = data['image'].astype(np.float32)
@@ -105,6 +141,7 @@ class Compose(object):
         if self.keep_uncropped:
             data['uncropped_image'] = data['image']
             data['uncropped_label'] = data['label']
+            data['uncropped_mask']  = data['mask']
         data = self.crop(data)
         if self.keep_non_smoothed:
             data['non_smoothed'] = data['label']

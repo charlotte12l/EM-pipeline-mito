@@ -6,7 +6,7 @@ import h5py, time, itertools, datetime
 import torch
 torch.cuda.manual_seed_all(2)
 from torch_connectomics.utils.net import *
-from torch_connectomics.run.train import train
+from torch_connectomics.run.train_NN import train_NN
 from torch_connectomics.model.loss import WeightedMSE, WeightedBCE, BinaryReg, AuxBCELoss, AuxMSELoss,AuxOhemMSELoss,AuxOhemBCELoss,AuxOhemMSELoss2
 
 def main():
@@ -24,18 +24,8 @@ def main():
     print('use aux:',args.aux)
     
     print('2.1 setup loss function')
-    if args.aux == 1:
-        if args.task == 22:
-            criterion = AuxOhemMSELoss2(0.5,10000) # OHEM on 
-            print('use AuxOhemMSELoss on weighted aux')
-        else:
-            criterion = AuxOhemBCELoss(0.5,10000)
-    else:
-        if args.task == 22:
-            criterion = WeightedMSE()
-            print('use no aux')
-        else:
-            criterion = WeightedBCE()  
+
+    criterion = WeightedBCE()  
     regularization = BinaryReg(alpha=10.0)
  
     print('3. setup optimizer')
@@ -47,8 +37,8 @@ def main():
     
 
     print('4. start training')
-    print('use ebd:',args.ebd)
-    train(args, train_loader, model, device, criterion, optimizer, scheduler, logger, writer)
+
+    train_NN(args, train_loader, model, device, criterion, optimizer, scheduler, logger, writer)
   
     print('5. finish training')
     logger.close()

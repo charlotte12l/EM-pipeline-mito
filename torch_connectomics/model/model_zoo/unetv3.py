@@ -1,6 +1,7 @@
 import os,sys
-
+sys.path.append('/n/pfister_lab2/Lab/xingyu/aarush/pytorch_connectomics')
 import torch
+torch.cuda.manual_seed_all(2)
 import math
 import torch.nn as nn
 import torch.nn.functional as F
@@ -22,7 +23,7 @@ class unetv3(nn.Module):
         out_channel (int): number of output channels.
         filters (list): number of filters at each u-net stage.
     """
-    def __init__(self, in_channel=1, out_channel=3, filters=[8, 12, 16, 20, 24]):
+    def __init__(self, in_channel=1, out_channel=3, filters=[8, 12, 16, 20, 24], act='sigmoid',aux = False):
     #def __init__(self, in_channel=1, out_channel=3, filters=[28, 36, 48, 64, 80]):
         super().__init__()
 
@@ -91,6 +92,21 @@ class unetv3(nn.Module):
         self.conv3 = conv3d_bn_elu(filters[3], filters[2], kernel_size=(1,1,1), padding=(0,0,0)) 
         self.conv4 = conv3d_bn_elu(filters[4], filters[3], kernel_size=(1,1,1), padding=(0,0,0))
 
+        if act == 'tanh':
+            self.act = nn.Tanh()
+        else:
+            self.act = nn.Sigmoid()
+
+        self.aux = aux
+        
+        if self.aux ==1:            
+            self.dsn = nn.Sequential(
+                conv3d_bn_elu(filters[2], filters[2]//2, kernel_size=(1,3,3), stride=1, padding=(0,1,1)),
+                nn.Dropout3d(0.1),
+                nn.Conv3d(filters[2]//2, out_channel, kernel_size=(1,1,1), stride=1, padding=(0,0,0), bias=True)
+            )
+        else:
+            self.dsn = None
         #initialization
         ortho_init(self)
 
@@ -117,6 +133,11 @@ class unetv3(nn.Module):
         x = x + z3
         x = self.layer3_D(x)
 
+        if self.aux==1:
+            x_dsn =  self.dsn(x)
+            x_dsn =  self.act(x_dsn)
+
+
         x = self.up(self.conv2(x))
         x = x + z2
         x = self.layer2_D(x)
@@ -124,18 +145,21 @@ class unetv3(nn.Module):
         x = self.up(self.conv1(x))
         x = x + z1
         x = self.layer1_D(x)
-
-        x = torch.sigmoid(x)
+        x = self.act(x)
+        
+        if self.aux==1:
+            return x_dsn, x
+        
         return x
 
 def test():
-    model = unetv3()
-    print('model type: ', model.__class__.__name__)
-    num_params = sum([p.data.nelement() for p in model.parameters()])
-    print('number of trainable parameters: ', num_params)
+    model = unetv3(aux=True)
+    #print('model type: ', model.__class__.__name__)
+    #num_params = sum([p.data.nelement() for p in model.parameters()])
+    #print('number of trainable parameters: ', num_params)
     x = torch.randn(8, 1, 4, 128, 128)
-    y = model(x)
-    print(x.size(), y.size())
+    y_dsn, y = model(x)
+    print(x.size(), y_dsn.size(),y.size())
 
 if __name__ == '__main__':
     test()

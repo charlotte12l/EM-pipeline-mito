@@ -44,7 +44,10 @@ class MitoDataset(BaseDataset):
             for i in range(len(self.label)):
                 self.label[i] = (self.label[i] != 0).astype(np.float32)
         
-        self.valid_mask = np.float32(valid_mask)
+        if valid_mask is not None:
+            self.valid_mask = np.float32(valid_mask)
+        else:
+            self.valid_mask = valid_mask
 
     def __getitem__(self, index):
         vol_size = self.sample_input_size
@@ -143,8 +146,11 @@ class MitoSkeletonDataset(BaseDataset):
             for i in range(len(self.label)):
                 self.label[i] = (self.label[i] != 0).astype(np.float32)
         
-        self.valid_mask = np.float32(valid_mask)
-
+        if valid_mask is not None:
+            self.valid_mask = np.float32(valid_mask)
+        else:
+            self.valid_mask = valid_mask
+            
     def __getitem__(self, index):
         vol_size = self.sample_input_size
 
@@ -179,8 +185,17 @@ class MitoSkeletonDataset(BaseDataset):
             # 3. augmentation
             if self.augmentor is not None:  # augmentation
                 data = {'image':out_input, 'label':out_label}
+                # import pdb; pdb.set_trace()
+                if self.valid_mask is not None:
+                    data['mask'] = out_valid
+
                 augmented = self.augmentor(data, random_state=seed)
                 out_input, out_label = augmented['image'], augmented['label']
+
+                if self.valid_mask is not None:
+                    out_valid = augmented['mask']
+                    out_valid = out_valid.astype(np.float32)
+
                 out_input = out_input.astype(np.float32)
                 out_label = out_label.astype(np.float32)
 
@@ -209,7 +224,11 @@ class MitoSkeletonDataset(BaseDataset):
             # Rebalancing
             temp = out_label.clone()
             weight_factor, weight = rebalance_binary_class(temp)
-            return pos, out_input, out_label, weight, weight_factor, out_distance, out_skeleton
+            if self.valid_mask is not None:
+                out_valid = torch.from_numpy(out_valid.copy()).unsqueeze(0)
+                return pos, out_input, out_label, weight, weight_factor, out_distance, out_skeleton, out_valid
+            else:
+                return pos, out_input, out_label, weight, weight_factor, out_distance, out_skeleton
 
         else:
             return pos, out_input

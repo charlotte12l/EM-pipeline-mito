@@ -114,4 +114,5 @@ class MissingParts(DataAugment):
 
         augmented = self.apply_deform(data['image'], random_state)
         data['image'] = augmented
+        # print(f'MissingParts Keys: {data.keys()}')
         return data

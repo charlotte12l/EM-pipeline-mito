@@ -4,13 +4,14 @@ import h5py, time, argparse, itertools, datetime
 from scipy import ndimage
 
 import torch
+torch.cuda.manual_seed_all(2)
 import torch.nn as nn
 import torch.utils.data
 import torchvision.utils as vutils
 
 from torch_connectomics.model.model_zoo import *
 from torch_connectomics.libs.sync import DataParallelWithCallback
-
+#from torch_connectomics.model.model_zoo import unetv3_ebd
 # tensorboardX
 from tensorboardX import SummaryWriter
 
@@ -54,24 +55,28 @@ def get_logger(args):
     logger = open(log_name+'.txt','w') # unbuffered, write instantly
 
     # tensorboardX
-    writer = SummaryWriter('runs/'+log_name)
+    writer = SummaryWriter(args.output+'/runs/'+'log_approx_'+date+'_'+time)
     return logger, writer
 
-def setup_model(args, device, exact=True, size_match=True,filters=[8, 12, 16, 20, 24]):
+def setup_model(args, device, exact=True, size_match=True):
 
     MODEL_MAP = {'unetv0': unetv0,
                  'unetv1': unetv1,
                  'unetv2': unetv2,
                  'unetv3': unetv3,
+                 'unetv3_ebd': unetv3_ebd,
+                 'unetv3_1':unetv3_1,
+                 'unetv3_ebd2': unetv3_ebd2,
                  'fpn': fpn}
 
     assert args.architecture in MODEL_MAP.keys()
-    if args.task == 2:
-        model = MODEL_MAP[args.architecture](in_channel=1, out_channel=args.out_channel, act='tanh',filters=filters)
+    if args.task == 22:
+        model = MODEL_MAP[args.architecture](in_channel=1, out_channel=args.out_channel, act='tanh',aux = args.aux)
     else:        
-        model = MODEL_MAP[args.architecture](in_channel=1, out_channel=args.out_channel, filters=filters)
+        model = MODEL_MAP[args.architecture](in_channel=1, out_channel=args.out_channel)
     print('model: ', model.__class__.__name__)
-    model = DataParallelWithCallback(model, device_ids=range(args.num_gpu))
+    if args.num_gpu>1:
+        model = DataParallelWithCallback(model, device_ids=range(args.num_gpu))
     model = model.to(device)
 
     if bool(args.load_model):
@@ -96,7 +101,7 @@ def setup_model(args, device, exact=True, size_match=True,filters=[8, 12, 16, 20
     
     return model
 
-def blend(sz, sigma=1, mu=0.0):  
+def blend(sz, sigma=0.5, mu=0.0):  
     """
     Gaussian blending
     """

@@ -39,6 +39,9 @@ class Grayscale(DataAugment):
         # apply augmentations  
         if mode is '2D': data = self.augment2D(data, random_state)
         if mode is '3D': data = self.augment3D(data, random_state)
+
+        # print(f'Greyscale Keys: {data.keys()}')
+
         return data
 
     def augment2D(self, data, random_state=None):
@@ -56,7 +59,7 @@ class Grayscale(DataAugment):
             transformedimgs[z, :, :] = img
 
         data['image'] = transformedimgs
-        return data    
+        return data
 
     def augment3D(self, data, random_state=None):
         """
