@@ -1,3 +1,6 @@
+# EM Mitochondria Pipeline
+This pipeline is derived from [zudi-lin/pytorch_connectomics](https://github.com/zudi-lin/pytorch_connectomics), I did the following modification and new implementation:
+
 # PyTorch Connectomics
 
 ## Introduction
