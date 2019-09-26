@@ -45,7 +45,7 @@ The past code requires using scripts/test.py to evaluate the trained model, but 
 - torch_connectomics/utils/net/arguments_val.py: Arguments for training & testing
 - torch_connectomics/utils/net/dataloader_val.py: Dataloader for training & testing
 
-                                            Please install the package as follows:
+Please install the package as follows:
 -------------------------------------------------------------------------------------------------------------------------
 # PyTorch Connectomics
 
