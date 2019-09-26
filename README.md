@@ -32,7 +32,7 @@ This pipeline is derived from [zudi-lin/pytorch_connectomics](https://github.com
 - torch_connectomics/model/loss/loss.py: implementation of Discriminative Loss
 
 ### Embedding
-Implentation for 
+Implementation of [paper](http://openaccess.thecvf.com/content_cvpr_2018/papers/Zeng_Learning_to_Promote_CVPR_2018_paper.pdf) on Mitochondria 
 - scripts/train_2D.py:Training script for 2D UNet+Embedding
 - torch_connectomics/run/train_2d.py:Train function for 2D UNet+Embedding
 - torch_connectomics/model/model_zoo/unet2d_ebd.py: Model for 2D UNet+Embedding
