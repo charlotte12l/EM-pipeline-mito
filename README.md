@@ -12,7 +12,7 @@ This pipeline is derived from [zudi-lin/pytorch_connectomics](https://github.com
 - torch_connectomics/run/genertae_slurm.py: Automatically generate slurm scripts for running inference on RC cluster 
 - torch_connectomics/run/deploy.py: Use trained model on large scale dataset to get heatmaps.
 
-### Online Hard Negative Mining:
+### Online Hard Negative Mining
 - scripts/train.py: Training script for OHEM, please set args.aux and criterion for OHEM.
 - torch_connectomics/run/train.py: Train function for OHEM
 - torch_connectomics/model/model_zoo/unetv3.py: new unetv3 version, with auxiliary outputs
