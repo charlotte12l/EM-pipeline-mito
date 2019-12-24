@@ -1,4 +1,6 @@
 # EM Mitochondria Pipeline
+### Pipeline Overview
+![](https://github.com/charlotte12l/EM-pipeline-mito/blob/master/figs/mito1.png)
 
 This pipeline is derived from [zudi-lin/pytorch_connectomics](https://github.com/zudi-lin/pytorch_connectomics), I did some modification and new implementation:
 
@@ -44,6 +46,9 @@ The past code requires using scripts/test.py to evaluate the trained model, but 
 - torch_connectomics/run/train_val.py: Function for training & testing
 - torch_connectomics/utils/net/arguments_val.py: Arguments for training & testing
 - torch_connectomics/utils/net/dataloader_val.py: Dataloader for training & testing
+
+### Segmented Data in Neuronglancer
+![](https://github.com/charlotte12l/EM-pipeline-mito/blob/master/figs/mito1.png)
 
 Please install the package as follows:
 -------------------------------------------------------------------------------------------------------------------------
