@@ -48,7 +48,7 @@ The past code requires using scripts/test.py to evaluate the trained model, but 
 - torch_connectomics/utils/net/dataloader_val.py: Dataloader for training & testing
 
 ### Segmented Data in Neuronglancer
-![](https://github.com/charlotte12l/EM-pipeline-mito/blob/master/figs/mito1.png)
+![](https://github.com/charlotte12l/EM-pipeline-mito/blob/master/figs/mito2.png)
 
 Please install the package as follows:
 -------------------------------------------------------------------------------------------------------------------------
